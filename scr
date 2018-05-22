@@ -1,0 +1,40 @@
+#!/usr/bin/ksh
+FILE=$HOME/lab1_err
+#IFS=''
+change_perm() {
+   chmod -- $1 "$2"  2>>$LOG_FILE || 
+               echo "Cannot change permissions: $2" >&2 
+}
+while true
+do
+[ -w $FILE ] && LOG_FILE=$FILE || LOG_FILE=/dev/null
+   echo 'Menu:
+1. Print current directory name.
+2. Print current directory content.
+3. Create directory.
+4. Add write rights to the directory.
+5. Remove write rights to the directory.
+6. Quit.'
+echo "Enter code:"; 
+   read item || exit -1
+   case $item in
+      1) basename `pwd` 2>>$LOG_FILE  || 
+                  echo "Cannot print directory name" >&2 ;;
+      2) ls 2>>$LOG_FILE || echo "Cannot print content" >&2 ;;
+      3)  
+         echo "Directory name:"; read item
+         mkdir -- "$item" 2>>$LOG_FILE || 
+                  echo "Cannot create a directory: $item." >&2 
+         ;;
+      4) 
+         echo "Directory name:"; read item
+         [ -d "$item" ] && change_perm a+w "$item" || 
+                  echo "No such directory: $item" >&2 ;;         
+      5) 
+         echo "Directory name:"; read item
+         [ -d "$item" ] && change_perm a-w "$item"  || 
+                  echo "No such directory: $item" >&2 ;;
+      6) exit 0 ;;
+      *) echo 'Unknown code' >&2 ;;
+   esac 
+done
